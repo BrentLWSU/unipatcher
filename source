@@ -1,0 +1,53 @@
+Imports System.IO
+Imports System.Net
+Imports ICSharpCode.SharpZipLib.Core
+Imports ICSharpCode.SharpZipLib.Zip
+
+Public Class Form1
+    Private Sub btnPlay_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnPlay.Click
+        If Not Directory.Exists("Patch") Then
+            Directory.CreateDirectory("Patch")
+        End If
+        Dim MyClient As New WebClient()
+        'Downloads ver.txt from your site and compares it to the one on your root game folder. Change yoursite.com with your domain.
+        Dim uri As New Uri("www.yoursite.com\ver.txt")
+        MyClient.DownloadFileAsync(uri, "Patch\ver.txt")
+
+        Dim latest As String = File.ReadAllText("Patch\ver.txt")
+        Dim current As String = File.ReadAllText("ver.txt")
+        Dim FileToCopy As String
+        Dim NewCopy As String
+        FileToCopy = (My.Application.Info.DirectoryPath & "\Patch\ver.txt")
+        NewCopy = (My.Application.Info.DirectoryPath & "\ver.txt")
+
+        If latest <> current Then
+            Dim wb As New WebClient()
+            'Downloads the zip file to the patch directory. Replace yoursite.com with your actual domain.
+            Dim uri2 As New Uri("www.yoursite.com/update.zip")
+            wb.DownloadFileAsync(uri2, "Patch\update.zip")
+
+            Dim zipfile As New FastZip()
+
+            'This unzips mygame.zip and replaces all files other than updater1.exe
+            zipfile.ExtractZip("Patch\update.zip", ".", "")
+            File.Delete("Patch\update.zip")
+        End If
+
+
+        If System.IO.File.Exists(FileToCopy) = True Then
+            File.Delete("ver.txt")
+            System.IO.File.Copy(FileToCopy, NewCopy)
+        End If
+
+        Dim program As New Process()
+        Try
+            System.Diagnostics.Process.Start(Application.StartupPath + "\DeltaMS.exe")
+        Catch ex As Exception
+            'Catches error and displays a Message Box with the error.
+            MsgBox(ex.Message)
+        Finally
+            'Closes updater when game is launched.
+            Me.Close()
+        End Try
+    End Sub
+End Class
