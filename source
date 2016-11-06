@@ -41,7 +41,7 @@ Public Class Form1
 
         Dim program As New Process()
         Try
-            System.Diagnostics.Process.Start(Application.StartupPath + "\DeltaMS.exe")
+            System.Diagnostics.Process.Start(Application.StartupPath + "\patcher.exe")
         Catch ex As Exception
             'Catches error and displays a Message Box with the error.
             MsgBox(ex.Message)
